@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	fmt.Println("dupa dupa cycki")
+	r := gin.Default()
+
+	// User/v1
+	r.POST("/user", PostUser)
+	//r.PUT("/user/:id/personal-data", PutUserPersonalData)
+
+	r.Run()
+
 }
