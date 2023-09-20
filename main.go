@@ -11,6 +11,8 @@ func main() {
 	r.POST("/user", PostUser)
 	//r.PUT("/user/:id/personal-data", PutUserPersonalData)
 
+	dbConnection()
+
 	r.Run()
 
 }
