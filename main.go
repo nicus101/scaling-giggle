@@ -38,6 +38,7 @@ func main() {
 			"error": err.Error(),
 		})
 	})
+	r.GET("/admin", LogInTest)
 
 	// execute
 	r.Run()

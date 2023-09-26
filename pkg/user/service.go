@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -50,4 +52,32 @@ func AddPersonalData(ctx context.Context, command AddPersonalDataCommand) error 
 	log.Println("Adding personal data", command)
 
 	return nil
+}
+
+// user.Response
+type AuthResponse struct {
+	IsAdmin  bool
+	Login    string
+	Id       int
+	AdminKey string
+}
+
+func Auth(ctx context.Context, login, password string) (AuthResponse, error) {
+	// INSERT/UPDATE => Exec/ExecContext
+	// SELECT zależy nam na pojedynczej wartości => QueryRow/QueryRowContext
+	// SELECT zależy nam na wielu wartościach => Query/QueryContext
+	log.Println("Authorizing user", login)
+
+	row := db.GetConnection().QueryRowContext(ctx,
+		`SELECT id, login, isAdmin, adminKey FROM user WHERE login=? AND password=?`, &login, &password)
+	if row.Err() != nil {
+		return AuthResponse{}, fmt.Errorf("authorization failed: %w", row.Err())
+	}
+
+	var response AuthResponse
+	if err := row.Scan(&response.Id, &response.Login, &response.IsAdmin, &response.AdminKey); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return AuthResponse{}, fmt.Errorf("authorization data error: %w", err)
+	}
+
+	return response, nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -63,3 +64,31 @@ func PutPersonalData(c *gin.Context) {
 //func PutUserPersonalData
 
 // c.BindJson :p https://pkg.go.dev/github.com/gin-gonic/gin#Context.BindJSON
+
+func LogInTest(c *gin.Context) {
+	login := c.Query("login")
+	password := c.Query("password")
+
+	response, err := user.Auth(c.Request.Context(), login, password)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if response.Id == 0 {
+		err := fmt.Errorf("invalid user or password")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+		// wyślij użytkownikowi 401 z {"error":"invalid user or password"}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": response,
+	})
+}
